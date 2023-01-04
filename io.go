@@ -14,7 +14,6 @@ next layer down the stack.
 */
 func (dg *Datagram) Read(p []byte) (n int, err error) {
 	errnie.Trace()
-
 	errnie.Debugs("spd.Datagram.Read Ptr ->", dg.Ptr())
 
 	var b []byte
@@ -24,6 +23,7 @@ func (dg *Datagram) Read(p []byte) (n int, err error) {
 	}
 
 	p = append(p, b...)
+
 	errnie.Debugs("spd.Datagram.Read ->", string(p))
 	return len(p), io.EOF
 }

@@ -23,8 +23,9 @@ func (dg *Datagram) Next() []byte {
 		return p
 	}
 
+	// Advance the pointer for the next read operation, and return the
+	// bytes obtained during the current read operation.
 	dg.SetPtr(dg.Ptr() + 1)
-
 	return p
 }
 
@@ -52,6 +53,9 @@ func (dg *Datagram) ReadAt(off int64) (p []byte, err error) {
 	return dg.layers().At(int(dg.Ptr()))
 }
 
+/*
+newLayer adds a new entry to the Layers slice of the Datagram.
+*/
 func (dg *Datagram) newLayer() capnp.DataList {
 	errnie.Trace()
 
@@ -61,27 +65,29 @@ func (dg *Datagram) newLayer() capnp.DataList {
 	)
 
 	if !dg.HasLayers() {
+		// If no layers have been initialized, we need to first add a
+		// new capnp.Datalist to do so.
 		if layers, err = dg.NewLayers(1); err != nil {
 			errnie.Handles(err)
 		}
 	}
 
+	// Set the read pointer to the latest entry in the capnp.Datalist.
 	dg.SetPtr(int32(dg.layers().Len() - 1))
 	errnie.Debugs("spd.Datagram.newLayer Ptr ->", dg.Ptr())
+
 	return layers
 }
 
+/*
+layers returns the capnp.Datalist level which stores the data of
+every Write operation performed on the Datagram.
+*/
 func (dg *Datagram) layers() capnp.DataList {
 	errnie.Trace()
 
-	var (
-		layers capnp.DataList
-		err    error
-	)
-
-	if layers, err = dg.Layers(); errnie.Handles(err) != nil {
-		return layers
-	}
+	layers, err := dg.Layers()
+	errnie.Handles(err)
 
 	return layers
 }
